@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasarela de Pago</title>
+    <link rel="stylesheet" href="public/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Para realizar el pago completa la información</h2>
+        <form id="paymentForm">
+            <label for="Nombre">Nombre</label>
+            <input type="text" placeholder="Nombre" id="Nombre" name="Nombre">
+            <label for="Apellido">Apellido</label>
+            <input type="text" placeholder="Apellido" name="Apellido" id="Apellido">
+            <label for="Email">Email</label>
+            <input type="email" placeholder="Email" value="correo@correo.com" name="Email" id="Email" autocomplete="on">
+            <label for="Telefono">Telefono</label>
+            <input type="tel" placeholder="Número de contacto" value="+593 000 000 000" name="Telefono" id="Telefono">
+            <label for="Cedula">Documento</label>
+            <select id="Cedula" disabled name="Cedula">
+                <option>CÉDULA</option>
+            </select>
+            <label for="Identificacion">Número de identificación</label>
+            <input type="text" placeholder="Número de identificación" value="1734653465" id="Identificacion" name="Identificacion">
+
+            <h2>Datos de facturación</h2>
+            <div class="checkbox-container">
+                <input type="checkbox" id="use-same-data" class="use-same-data" checked name="use-same-data">
+                <label for="use-same-data">Usar los mismos datos para mi factura</label>
+            </div>
+
+            <h2>Método de pago</h2>
+            <div class="payment-method">
+                <div class="kushki-info">
+                    <input type="radio" name="payment" id="kushki" checked>
+                    <label for="kushki">Kushki</label>
+                    <p>Payment Powered By:</p>
+                </div>
+                <div class="card-icons">
+                    <img src="public/img/american.png" alt="Visa" id="visa">
+                    <img src="public/img/mastercard.png" alt="Mastercard" id="Mastercard">
+                    <img src="public/img/diners.jpg" alt="Diners" id="Diners">
+                    <img src="public/img/american.png" alt="American Express" id="American">
+                    <img src="public/img/kushki.jpg" alt="Kushki" id="kushki">
+                </div>
+            </div>
+
+            <label for="Nombre en tarjeta">Nombre en tarjeta</label>
+            <input type="text" placeholder="Nombre en tarjeta" id="Nombre en tarjeta">
+            
+            <label for="Número en tarjeta">Número en tarjeta</label>
+            <input type="text" placeholder="Número de tarjeta" value="000 000 000 000" id="Número en tarjeta">
+            <div class="card-details">
+                <div>
+                    <label for="MM">Mes de Expiración</label>
+                    <input type="text" placeholder="MM" class="small-input" id="MM">
+                </div>
+                <div>
+                    <label for="AA">Año de Expiración</label>
+                    <input type="text" placeholder="AA" class="small-input" id="AA">
+                </div>
+                <div>
+                    <label for="CVV">CVV</label>
+                    <input type="text" placeholder="CVV" class="small-input" id="CVV">
+                </div>
+            </div>
+
+            <div class="total">
+                <p>Subtotal: $90.00</p>
+                <p>Impuestos: $0.00</p>
+                <p><strong>TOTAL A PAGAR: $90.00</strong></p>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="terms" class="use-same-data" checked>
+                <label for="terms">He leído y acepto políticas de privacidad, términos y condiciones</label>
+            </div>
+
+            <button type="button" id="payButton">Pagar</button>
+            <div id="successPopup" class="popup" style="display: none;">
+                <div class="popup-content">
+                    <h2>Pago Exitoso!</h2>
+                    <p>Tu pago se ha realizado exitosamente</p>
+                    <a href="https://wa.link/mu9nil" class="whatsapp-button">Regresar al Negocio</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const payButton = document.getElementById('payButton');
+            const successPopup = document.getElementById('successPopup');
+
+            function getQueryParam(param) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            }
+
+            const celular = getQueryParam('msisdn');
+
+            payButton.addEventListener('click', function() {
+                var loginSettings = {
+                    "url": "https://massive.chattigo.com/message/login",
+                    "method": "POST",
+                    "timeout": 0,
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "data": JSON.stringify({
+                        "username": "api@advance",
+                        "password": "Api.2023"
+                    }),
+                };
+
+                $.ajax(loginSettings).done(function(response) {
+                    console.log('Login response: ', response);
+                    var accessToken = response.access_token;
+                    
+                    var messageSettings = {
+                        "url": "https://massive.chattigo.com/message/inbound/message",
+                        "method": "POST",
+                        "timeout": 0,
+                        "headers": {
+                            "Authorization": "Bearer " + accessToken,
+                            "Content-Type": "application/json"
+                        },
+                        "data": JSON.stringify({
+                            "id": "123123",
+                            "did": "593963961111",
+                            "msisdn": celular,
+                            "type": "media",
+                            "channel": "WHATSAPP",
+                            "content": "Gracias por realizar el pago, adjuntamos tu comprobante",
+                            "name": "Johans Morales",
+                            "isAttachment": true,
+                            "attachment":{
+                                "mimeType": "application/pdf",
+                                "mediaUrl": "https://advtestrec.s3.us-west-2.amazonaws.com/Prueba/1103202101176804939000120010040003368662021122917.pdf"
+                            }
+                        }),
+                    };
+
+                    $.ajax(messageSettings).done(function(response) {
+                        console.log('Message response: ', response);
+                        successPopup.style.display = 'block';
+                    }).fail(function(jqXHR, textStatus) {
+                        console.error('Error enviando mensaje: ', textStatus);
+                    });
+                }).fail(function(jqXHR, textStatus) {
+                    console.error('Error de login: ', textStatus);
+                });
+            });
+
+            successPopup.addEventListener('click', function(event) {
+                if (event.target === successPopup) {
+                    successPopup.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamiento de Pasaportes</title>
+    <link rel="stylesheet" href="public/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <main>
+        <section class="agency-selection">
+            <label for="agency">Seleccionar agencia:</label>
+            <select id="agency">
+                <option value="gobierno-zonal-quito">Gobierno Zonal (Quito)</option>
+                <option value="gobierno-zonal-guayaquil">Gobierno Zonal (Guayaquil)</option>
+                <option value="gobierno-zonal-cuenca">Gobierno Zonal (Cuenca)</option>
+            </select>
+        </section>
+
+        <section class="calendar">
+            <div class="week-navigation">
+                <button id="prev-week" class="primary">←</button>
+                <span id="current-week">Ago 19 – 25, 2020</span>
+                <button id="next-week" class="primary">→</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lun 08/19</th>
+                        <th>Mar 08/20</th>
+                        <th>Mié 08/21</th>
+                        <th>Jue 08/22</th>
+                        <th>Vie 08/23</th>
+                        <th>Sáb 08/24</th>
+                        <th>Dom 08/25</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="unavailable">No disponible</td>
+                        <td class="unavailable">No disponible</td>
+                        <td class="unavailable">No disponible</td>
+                        <td class="unavailable">No disponible</td>
+                        <td class="unavailable">No disponible</td>
+                        <td class="reserved">8:00 – Reservado</td>
+                        <td class="unavailable">No disponible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <button id="back" class="btn danger">Regresar</button>
+        <button id="schedule" class="btn primary">Agendar</button>
+    </footer>
+    <script src="public/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const prevWeekBtn = document.getElementById('prev-week');
+            const nextWeekBtn = document.getElementById('next-week');
+            const currentWeek = document.getElementById('current-week');
+            const agencySelect = document.getElementById('agency');
+            const scheduleBtn = document.getElementById('schedule');
+
+            let weekDates = ['Ago 19', 'Ago 20', 'Ago 21', 'Ago 22', 'Ago 23', 'Ago 24', 'Ago 25'];
+
+            scheduleBtn.addEventListener('click', function() {
+                var loginSettings = {
+                    "url" : "https://massive.chattigo.com/message/login",
+                    "method" : "POST",
+                    "timeout": 0,
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "data": JSON.stringify({
+                        "username": "api@advance",
+                        "password": "Api.2023"
+                    }),
+                };
+
+                $.ajax(loginSettings).done(function (response) {
+                    console.log('Login response: ', response);
+                    var accessToken = response.access_token;
+                    var messageSettings = {
+                        "url": "https://massive.chattigo.com/message/inbound/message",
+                        "method": "POST",
+                        "timeout": 0,
+                        "headers": {
+                            "Authorization": "Bearer " + accessToken,
+                            "Content-Type": "application/json"
+                        },
+                        "data": JSON.stringify({
+                            "id": "123123",
+                            "did": "593963961111",
+                            "msisdn": "593996683880",
+                            "type": "text",
+                            "channel": "WHATSAPP",
+                            "content": "Te confirmamos el turno para el día Jueves 22 de agosto a las 08:00\n\nPor favor ahora realiza el pago del servicio mediante el siguiente link: \nhttps://n9.cl/cqwk5",
+                            "name": "Johans Morales",
+                            "isAttachment": false,
+                            "attachment":{}
+                        }),
+                    };
+
+                    $.ajax(messageSettings).done(function (response) {
+                        console.log('Message response: ', response);
+                        window.location.href = "https://wa.link/mu9nil";
+                    }).fail(function (jqXHR, textSatus) {
+                        console.error('Error enviando mensaje: ', textSatus);
+                    });
+                }).fail(function (jqXHR, textSatus) {
+                    console.error('Error de login: ', textSatus);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
