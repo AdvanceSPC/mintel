@@ -65,6 +65,13 @@
             const agencySelect = document.getElementById('agency');
             const scheduleBtn = document.getElementById('schedule');
 
+            function getQueryParam(param) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            }
+
+            const celular = getQueryParam('msisdn');
+
             let weekDates = ['Ago 19', 'Ago 20', 'Ago 21', 'Ago 22', 'Ago 23', 'Ago 24', 'Ago 25'];
 
             scheduleBtn.addEventListener('click', function() {
@@ -95,10 +102,10 @@
                         "data": JSON.stringify({
                             "id": "123123",
                             "did": "593963961111",
-                            "msisdn": "593996683880",
+                            "msisdn": celular,
                             "type": "text",
                             "channel": "WHATSAPP",
-                            "content": "Te confirmamos el turno para el día Jueves 22 de agosto a las 08:00\n\nPor favor ahora realiza el pago del servicio mediante el siguiente link: \nhttps://n9.cl/cqwk5",
+                            "content": "Te confirmamos el turno para el día Jueves 22 de agosto a las 08:00\n\nPor favor ahora realiza el pago del servicio mediante el siguiente link: \nhttp://mintel.advancespc.com/payphone.html?msisdn={{CHAT_CONTEXT.CHANNEL_IDENTIFIER}}",
                             "name": "Johans Morales",
                             "isAttachment": false,
                             "attachment":{}
